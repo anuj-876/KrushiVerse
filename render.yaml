@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: krushiverse-backend
+    env: python
+    region: oregon
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn api_server_production:app --host 0.0.0.0 --port $PORT"
+    envVars:
+      - key: GOOGLE_API_KEY
+        sync: false
+      - key: FRONTEND_URL
+        value: https://krushiverse.vercel.app
+      - key: PRODUCTION_DOMAIN
+        value: krushiverse.vercel.app
+      - key: PYTHON_VERSION
+        value: "3.10.0"
+    healthCheckPath: /health
+    
+  - type: web
+    name: krushiverse-frontend
+    env: static
+    region: oregon
+    buildCommand: "cd KrushiVerse && npm install && npm run build"
+    staticPublishPath: ./KrushiVerse/dist
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: krushiverse-backend
+          envVarKey: RENDER_EXTERNAL_URL
