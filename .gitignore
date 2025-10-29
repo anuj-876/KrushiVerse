@@ -39,9 +39,9 @@ Thumbs.db
 # Logs
 *.log
 
-# ChromaDB
-chroma_db/
-!chroma_db/.gitkeep
+# ChromaDB (temporarily allow for deployment)
+# chroma_db/
+# !chroma_db/.gitkeep
 
 # Temporary files
 *.tmp
