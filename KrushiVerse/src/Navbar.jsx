@@ -27,6 +27,10 @@ export default function Navbar() {
         position: "sticky",
         top: 0,
         zIndex: 1000,
+        width: "100%",
+        maxWidth: "100vw",
+        boxSizing: "border-box",
+        overflowX: "hidden",
       }}
     >
       {/* Logo */}
