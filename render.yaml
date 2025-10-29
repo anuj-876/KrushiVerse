@@ -22,8 +22,6 @@ services:
   - type: web
     name: krushiverse-frontend
     env: static
-    region: oregon
-    plan: free
     buildCommand: cd KrushiVerse && npm install && npm run build
     staticPublishPath: ./KrushiVerse/dist
     routes:
