@@ -94,6 +94,7 @@ export default function SmartKrishiLanding() {
   const [isListening, setIsListening] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState("en-US");
   const [languageMenuAnchor, setLanguageMenuAnchor] = useState(null);
+  const [sessionId, setSessionId] = useState(null);
   
   const recognitionRef = useRef(null);
   const navigate = useNavigate();
@@ -194,13 +195,18 @@ export default function SmartKrishiLanding() {
           },
           body: JSON.stringify({
             message: messageText,
-            language: selectedLanguage
+            language: selectedLanguage,
+            session_id: sessionId
           }),
         });
 
         if (response.ok) {
           const data = await response.json();
           aiResponse = data.response;
+          // Store session ID for conversation continuity
+          if (data.session_id && !sessionId) {
+            setSessionId(data.session_id);
+          }
         }
       } catch (apiError) {
         console.log("API not available, using local responses");
@@ -1015,26 +1021,7 @@ export default function SmartKrishiLanding() {
               color: '#e7fbe7', 
               fontSize: "clamp(0.9rem, 1.2vw, 1rem)" 
             }}>
-              <li style={{ marginBottom: "clamp(6px, 1vw, 8px)" }}>
-                <a href="/login" style={{ 
-                  color: '#e7fbe7', 
-                  textDecoration: 'none',
-                  transition: "color 0.3s ease"
-                }}
-                onMouseEnter={(e) => e.target.style.color = "#fff"}
-                onMouseLeave={(e) => e.target.style.color = "#e7fbe7"}
-                >Login</a>
-              </li>
-              <li style={{ marginBottom: "clamp(6px, 1vw, 8px)" }}>
-                <a href="/register" style={{ 
-                  color: '#e7fbe7', 
-                  textDecoration: 'none',
-                  transition: "color 0.3s ease"
-                }}
-                onMouseEnter={(e) => e.target.style.color = "#fff"}
-                onMouseLeave={(e) => e.target.style.color = "#e7fbe7"}
-                >Register</a>
-              </li>
+
               <li style={{ marginBottom: "clamp(6px, 1vw, 8px)" }}>
                 <a href="/support" style={{ 
                   color: '#e7fbe7', 

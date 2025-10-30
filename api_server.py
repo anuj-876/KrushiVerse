@@ -17,6 +17,8 @@ from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from html import escape
 import logging
+import uuid
+from typing import Dict, List, Optional
 
 # Set up logging
 logging.basicConfig(
@@ -29,6 +31,9 @@ logger = logging.getLogger(__name__)
 load_dotenv()
 
 app = FastAPI(title="KrushiVerse Agricultural Assistant API")
+
+# Session storage for conversation tracking
+session_storage: Dict[str, List[Dict[str, str]]] = {}
 
 # Rate limiter
 limiter = Limiter(key_func=get_remote_address)
@@ -63,9 +68,11 @@ app.add_middleware(
 class ChatRequest(BaseModel):
     message: str
     language: str = "English"
+    session_id: Optional[str] = None  # Optional session ID for conversation tracking
 
 class ChatResponse(BaseModel):
     response: str
+    session_id: Optional[str] = None
 
 # Validate API key on startup
 @app.on_event("startup")
@@ -82,18 +89,11 @@ async def startup_event():
 logger.info("Initializing RAG system...")
 
 # Try Google embeddings first, fall back to HuggingFace
-try:
-    embeddings = GoogleGenerativeAIEmbeddings(
-        model="models/embedding-001",
-        google_api_key=os.getenv("GOOGLE_API_KEY")
-    )
-    logger.info("✅ Using Google Generative AI Embeddings")
-except Exception as e:
-    logger.warning(f"Google embeddings failed: {e}. Falling back to HuggingFace.")
-    embeddings = HuggingFaceEmbeddings(
-        model_name="sentence-transformers/all-MiniLM-L6-v2"
-    )
-    logger.info("✅ Using HuggingFace Embeddings")
+# Use HuggingFace embeddings (quota-free, works offline)
+embeddings = HuggingFaceEmbeddings(
+    model_name="sentence-transformers/paraphrase-multilingual-mpnet-base-v2"
+)
+logger.info("✅ Using Multilingual HuggingFace Embeddings (supports Hindi/Marathi)")
 
 # Load vector database
 try:
@@ -115,51 +115,33 @@ llm = GoogleGenerativeAI(
 
 # Language-specific prompts
 PROMPT_TEMPLATES = {
-    "English": """You are a knowledgeable agricultural expert assistant specializing in sustainable farming practices for Pune district, Maharashtra, India.
+    "English": """You are an experienced farmer from Pune district who gives direct, practical farming advice.
 
-Context from agricultural knowledge base:
-{context}
+Context: {context}
+{history}
+Current Question: {question}
 
-User Question: {question}
-
-Instructions:
-- Provide detailed, practical advice based on the context provided
-- If discussing bio-fertilizers, include: types, preparation methods, application rates, and benefits
-- If the context doesn't contain relevant information, use your general agricultural knowledge
-- Keep responses clear, actionable, and suitable for farmers
-- Focus on sustainable and organic farming practices
+Give a direct answer in 2-3 sentences. If this is the first question in conversation, you may use a simple, neutral greeting like "Hello!" or "Hi there!" once. For follow-up questions, skip greetings and give direct advice. Use simple farming language and focus on actionable steps with specific methods, quantities, and timing.
 
 Answer:""",
     
-    "Hindi": """आप पुणे जिला, महाराष्ट्र, भारत के लिए टिकाऊ कृषि प्रथाओं में विशेषज्ञता रखने वाले एक जानकार कृषि विशेषज्ञ सहायक हैं।
+    "Hindi": """आप पुणे जिले के एक अनुभवी किसान हैं जो सीधी व्यावहारिक खेती की सलाह देते हैं।
 
-कृषि ज्ञान आधार से संदर्भ:
-{context}
+संदर्भ: {context}
+{history}
+वर्तमान प्रश्न: {question}
 
-उपयोगकर्ता प्रश्न: {question}
-
-निर्देश:
-- प्रदान किए गए संदर्भ के आधार पर विस्तृत, व्यावहारिक सलाह दें
-- जैव-उर्वरकों पर चर्चा करते समय शामिल करें: प्रकार, तैयारी के तरीके, अनुप्रयोग दरें, और लाभ
-- यदि संदर्भ में प्रासंगिक जानकारी नहीं है, तो अपने सामान्य कृषि ज्ञान का उपयोग करें
-- जवाब स्पष्ट, कार्रवाई योग्य और किसानों के लिए उपयुक्त रखें
-- टिकाऊ और जैविक कृषि प्रथाओं पर ध्यान दें
+2-3 वाक्य में सीधा जवाब दें। अगर यह बातचीत का पहला प्रश्न है तो सिर्फ सरल अभिवादन जैसे "हेलो!" या "नमस्ते!" का उपयोग करें। बाकी प्रश्नों के लिए सीधी सलाह दें। सरल खेती की भाषा का प्रयोग करें और व्यावहारिक कदमों, मात्रा और समय पर ध्यान दें।
 
 उत्तर:""",
     
-    "Marathi": """तुम्ही पुणे जिल्हा, महाराष्ट्र, भारतासाठी शाश्वत शेती पद्धतींमध्ये विशेष ज्ञान असलेले कृषी तज्ञ सहाय्यक आहात।
+    "Marathi": """तुम्ही पुणे जिल्ह्यातील एक अनुभवी शेतकरी आहात जो थेट व्यावहारिक शेतीचा सल्ला देतात।
 
-कृषी ज्ञान आधारातील संदर्भ:
-{context}
+संदर्भ: {context}
+{history}
+सध्याचा प्रश्न: {question}
 
-वापरकर्ता प्रश्न: {question}
-
-सूचना:
-- प्रदान केलेल्या संदर्भावर आधारित तपशीलवार, व्यावहारिक सल्ला द्या
-- जैव-खतांवर चर्चा करताना समाविष्ट करा: प्रकार, तयारी पद्धती, वापर दर, आणि फायदे
-- जर संदर्भात संबंधित माहिती नसेल तर तुमचे सामान्य कृषी ज्ञान वापरा
-- उत्तरे स्पष्ट, कृती करण्यायोग्य आणि शेतकऱ्यांसाठी योग्य ठेवा
-- शाश्वत आणि सेंद्रिय शेती पद्धतींवर लक्ष केंद्रित करा
+2-3 वाक्यात थेट उत्तर द्या। जर हा संभाषणातील पहिला प्रश्न असेल तर फक्त साधे अभिवादन जसे "नमस्कार!" किंवा "हाय!" वापरा। इतर प्रश्नांसाठी थेट सल्ला द्या। साधी शेतीची भाषा वापरा आणि व्यावहारिक पायऱ्या, प्रमाण आणि वेळेवर लक्ष द्या।
 
 उत्तर:"""
 }
@@ -169,7 +151,7 @@ qa_chains = {}
 for lang, template in PROMPT_TEMPLATES.items():
     prompt = PromptTemplate(
         template=template,
-        input_variables=["context", "question"]
+        input_variables=["context", "question", "history"]
     )
     
     qa_chains[lang] = RetrievalQA.from_chain_type(
@@ -201,6 +183,7 @@ def enhance_biofertilizer_response(response: str, language: str) -> str:
     return response
 
 # API Endpoints
+
 @app.get("/health")
 async def health_check():
     """Health check endpoint with database status"""
@@ -222,8 +205,11 @@ async def health_check():
 
 @app.post("/chat", response_model=ChatResponse)
 @limiter.limit("20/minute")  # Rate limit: 20 requests per minute
-async def chat_endpoint(request: Request, chat_request: ChatRequest):
-    """Chat endpoint with RAG-enhanced responses"""
+async def chat_endpoint(
+    request: Request, 
+    chat_request: ChatRequest
+):
+    """Chat endpoint with RAG-enhanced responses and conversation memory"""
     try:
         # Input validation and sanitization
         if not chat_request.message or len(chat_request.message.strip()) == 0:
@@ -239,21 +225,59 @@ async def chat_endpoint(request: Request, chat_request: ChatRequest):
         if chat_request.language not in PROMPT_TEMPLATES:
             chat_request.language = "English"
         
-        logger.info(f"Chat request: {sanitized_message[:50]}... | Language: {chat_request.language}")
+        # Handle session management
+        session_id = chat_request.session_id or str(uuid.uuid4())
+        user_context = ""
         
-        # Get QA chain for selected language
+        # Initialize session if new
+        if session_id not in session_storage:
+            session_storage[session_id] = []
+        
+        # Build conversation history
+        history_text = ""
+        if session_storage[session_id]:
+            history_text += "Previous conversation:\n"
+            for exchange in session_storage[session_id][-3:]:  # Last 3 exchanges
+                history_text += f"Q: {exchange['question']}\nA: {exchange['answer']}\n"
+            history_text += "\n"
+        
+        logger.info(f"Chat request: {sanitized_message[:50]}... | Language: {chat_request.language} | Session: {session_id[:8]}...")
+        
+        # Get QA chain for selected language  
         qa_chain = qa_chains.get(chat_request.language, qa_chains["English"])
         
+        # Get relevant documents from vector store
+        retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
+        relevant_docs = retriever.get_relevant_documents(sanitized_message)
+        context = "\n".join([doc.page_content for doc in relevant_docs])
+        
+        # Format prompt with history and context
+        prompt_template = PROMPT_TEMPLATES[chat_request.language]
+        formatted_prompt = prompt_template.format(
+            context=context,
+            question=sanitized_message,
+            history=history_text
+        )
+        
         # Generate response
-        result = qa_chain({"query": sanitized_message})
-        response_text = result["result"]
+        response_text = llm(formatted_prompt)
         
         # Enhance response if needed
         enhanced_response = enhance_biofertilizer_response(response_text, chat_request.language)
         
+        # Store conversation in session
+        session_storage[session_id].append({
+            "question": sanitized_message,
+            "answer": enhanced_response
+        })
+        
+        # Keep only last 10 exchanges per session to prevent memory bloat
+        if len(session_storage[session_id]) > 10:
+            session_storage[session_id] = session_storage[session_id][-10:]
+        
         logger.info(f"Response generated successfully (length: {len(enhanced_response)})")
         
-        return ChatResponse(response=enhanced_response)
+        return ChatResponse(response=enhanced_response, session_id=session_id)
     
     except Exception as e:
         logger.error(f"Error processing chat request: {str(e)}")

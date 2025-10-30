@@ -3,10 +3,8 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./Navbar";
 import Home from "./HomePage";
 import About from "./AboutPage";
-import CropInsights from "./CropInsightsPage";
+import NewsPage from "./NewsPage";
 import ContactPage from "./ContactPage";
-import RegisterPage from "./RegisterPage";
-import LoginPage from "./LoginPage";  // ✅ Import Login Page
 
 export default function App() {
   return (
@@ -21,12 +19,10 @@ export default function App() {
       <Router>
         <Navbar />
         <Routes>
-        <Route path="/" element={<Home />} />
+          <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
-          <Route path="/crop-insights" element={<CropInsights />} />
+          <Route path="/crop-insights" element={<NewsPage />} />
           <Route path="/contact" element={<ContactPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/login" element={<LoginPage />} />  {/* ✅ Added Login Route */}
           <Route path="*" element={<Home />} />
         </Routes>
       </Router>
