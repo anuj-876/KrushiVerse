@@ -48,6 +48,7 @@ ALLOWED_ORIGINS = [
     "http://127.0.0.1:3001",
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "*",  # Allow all origins for PythonAnywhere (can be more restrictive later)
 ]
 
 # Add production domain if specified
@@ -55,6 +56,11 @@ PRODUCTION_DOMAIN = os.getenv("PRODUCTION_DOMAIN")
 if PRODUCTION_DOMAIN:
     ALLOWED_ORIGINS.append(f"https://{PRODUCTION_DOMAIN}")
     ALLOWED_ORIGINS.append(f"https://www.{PRODUCTION_DOMAIN}")
+
+# Add PythonAnywhere domain support
+PYTHONANYWHERE_USERNAME = os.getenv("PYTHONANYWHERE_USERNAME")
+if PYTHONANYWHERE_USERNAME:
+    ALLOWED_ORIGINS.append(f"https://{PYTHONANYWHERE_USERNAME}.pythonanywhere.com")
 
 app.add_middleware(
     CORSMiddleware,
