@@ -39,9 +39,10 @@ Thumbs.db
 # Logs
 *.log
 
-# ChromaDB (temporarily allow for deployment)
-# chroma_db/
-# !chroma_db/.gitkeep
+# ChromaDB database files (exclude from version control)
+chroma_db/chroma.sqlite3
+chroma_db/chroma.sqlite3-wal
+chroma_db/chroma.sqlite3-shm
 
 # Temporary files
 *.tmp
