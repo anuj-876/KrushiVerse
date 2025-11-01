@@ -1,0 +1,7 @@
+# Deployment files for different platforms
+*.zip
+*.tar.gz
+
+# AWS Elastic Beanstalk
+.elasticbeanstalk/
+!.elasticbeanstalk/config.yml
