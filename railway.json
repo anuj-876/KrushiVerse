@@ -1,11 +1,9 @@
 {
   "build": {
-    "builder": "nixpacks",
-    "buildCommand": "pip install --no-cache-dir -r requirements.txt"
+    "builder": "nixpacks"
   },
   "deploy": {
-    "startCommand": "uvicorn api_server:app --host 0.0.0.0 --port $PORT --workers 1",
-    "healthcheckPath": "/health",
-    "restartPolicyType": "never"
+    "startCommand": "uvicorn api_server:app --host 0.0.0.0 --port $PORT",
+    "healthcheckPath": "/health"
   }
 }
