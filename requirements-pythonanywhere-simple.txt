@@ -1,0 +1,29 @@
+# PythonAnywhere Compatible Requirements
+# Core FastAPI requirements
+fastapi
+uvicorn
+python-multipart
+
+# AI/ML requirements
+google-generativeai
+langchain
+langchain-google-genai
+langchain-community
+sentence-transformers
+
+# Database
+chromadb
+
+# Utilities
+python-dotenv
+slowapi
+pydantic
+
+# HTTP requests
+requests
+aiohttp
+
+# Additional dependencies
+numpy
+pandas
+Pillow
