@@ -21,7 +21,7 @@ const teamMembers = [
     title: 'AI Analyst',
     description: 'An AI Analyst at KrushiVerse uses artificial intelligence to analyze agricultural data and provide farmers with insights to boost crop yield, efficiency, and sustainable farming practices.',
     socials: [{ icon: 'in', url: '#' }],
-    photo: '/images/shreya.jpg',
+    photo: '/images/shreya1.jpg',
   },
   {
     name: 'Parth Kale',
@@ -38,7 +38,7 @@ const teamMembers = [
     title: 'AI Developer',
     description: 'An AI Developer at KrushiVerse focuses on building and optimizing machine learning models to analyze agricultural data and provide actionable insights for farmers.',
     socials: [{ icon: 'in', url: '#' }],
-    photo: '/images/anuj.jpg',
+    photo: '/images/Anuj.JPG',
   },
 ];
 
@@ -325,7 +325,6 @@ export default function AboutPage() {
                   color: '#22c55e',
                   fontWeight: '600',
                   marginBottom: '1rem',
-                  fontSize: '1rem',
                   textTransform: 'uppercase',
                   letterSpacing: '0.05em',
                   fontSize: '0.9rem'
@@ -450,7 +449,6 @@ export default function AboutPage() {
                 color: '#22c55e',
                 fontWeight: '600',
                 marginBottom: '1rem',
-                fontSize: '1rem',
                 textTransform: 'uppercase',
                 letterSpacing: '0.05em',
                 fontSize: '0.9rem'

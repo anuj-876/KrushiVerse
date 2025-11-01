@@ -19,7 +19,7 @@ import {
 } from "@mui/icons-material";
 
 // Get API URL from environment variable (Vite uses import.meta.env)
-const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8002";
+const API_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8006";
 
 // SVG Tick Icon
 const TickIcon = (
@@ -85,6 +85,61 @@ const farmingFeatures = [
 ];
 
 export default function SmartKrishiLanding() {
+  // Add CSS animations to document head
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px) scale(0.95);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+      
+      @keyframes messageSlideIn {
+        from {
+          opacity: 0;
+          transform: translateX(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
+      }
+      
+      @keyframes typingDot {
+        0%, 60%, 100% {
+          transform: translateY(0);
+          opacity: 0.4;
+        }
+        30% {
+          transform: translateY(-10px);
+          opacity: 1;
+        }
+      }
+      
+      @keyframes pulse {
+        0%, 100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.8;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+    
+    return () => {
+      if (document.head.contains(style)) {
+        document.head.removeChild(style);
+      }
+    };
+  }, []);
+
   const [isChatOpen, setChatOpen] = useState(false);
   const [messages, setMessages] = useState([
     { text: "नमस्कार! मी आपला कृषी सहाय्यक आहे. मला शेती, पीक आणि कृषी तंत्राबद्दल प्रश्न विचारा. 🌾\n\nHello! I'm your agricultural assistant. Ask me about farming, crops, and agricultural techniques.", sender: "ai", timestamp: new Date() }
@@ -555,37 +610,68 @@ export default function SmartKrishiLanding() {
             style={{
               display: "flex",
               alignItems: "center",
-              gap: 10,
-              background: "#fff",
-              color: "#000",
+              gap: 12,
+              background: "linear-gradient(135deg, #22C55E 0%, #16A34A 100%)",
+              color: "#fff",
               border: "none",
-              borderRadius: 14,
-              padding: "18px 28px",
+              borderRadius: 25,
+              padding: "16px 24px",
               fontSize: 16,
-              fontWeight: 500,
-              boxShadow: "0 6px 18px rgba(0,0,0,0.15)",
+              fontWeight: 600,
+              boxShadow: "0 8px 25px rgba(34, 197, 94, 0.4), 0 4px 10px rgba(0,0,0,0.1)",
               cursor: "pointer",
-              transition: "all 0.3s ease",
+              transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+              transform: "scale(1)",
+              position: "relative",
+              overflow: "hidden",
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.transform = "scale(1.05) translateY(-2px)";
+              e.target.style.boxShadow = "0 12px 35px rgba(34, 197, 94, 0.5), 0 6px 15px rgba(0,0,0,0.15)";
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.transform = "scale(1) translateY(0px)";
+              e.target.style.boxShadow = "0 8px 25px rgba(34, 197, 94, 0.4), 0 4px 10px rgba(0,0,0,0.1)";
             }}
           >
-            <img
-              src="https://cdn-icons-png.flaticon.com/512/4712/4712035.png"
-              alt="Chat"
-              style={{ width: 22, height: 22 }}
+            <img 
+              src="/images/Gemini_Generated_Image_cowymkcowymkcowy.png" 
+              alt="AI Assistant" 
+              style={{ 
+                width: "24px", 
+                height: "24px", 
+                borderRadius: "50%",
+                filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.1))" 
+              }} 
             />
-            Ask कृषी Verse AI
+            <span style={{ textShadow: "0 1px 2px rgba(0,0,0,0.1)" }}>Ask कृषी Verse AI</span>
+            <div style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: "linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 50%, rgba(255,255,255,0.1) 100%)",
+              transform: "translateX(-100%)",
+              transition: "transform 0.6s",
+              pointerEvents: "none"
+            }} />
           </button>
         ) : (
           <div
             style={{
-              width: 400,
-              height: 600,
-              background: "#fff",
-              borderRadius: 18,
-              boxShadow: "0 10px 32px rgba(0,0,0,0.2)",
+              width: 600,
+              height: 750,
+              background: "linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)",
+              borderRadius: 20,
+              boxShadow: "0 25px 50px rgba(0,0,0,0.15), 0 0 0 1px rgba(255,255,255,0.8)",
               display: "flex",
               flexDirection: "column",
               overflow: "hidden",
+              border: "1px solid rgba(255,255,255,0.2)",
+              backdropFilter: "blur(10px)",
+              animation: "slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+              position: "relative"
             }}
           >
             {/* Header */}
@@ -593,31 +679,70 @@ export default function SmartKrishiLanding() {
               style={{
                 background: "linear-gradient(135deg, #22C55E 0%, #16A34A 100%)",
                 color: "#fff",
-                padding: "16px 20px",
-                fontWeight: "bold",
+                padding: "24px 32px",
+                fontWeight: "600",
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
+                position: "relative",
+                overflow: "hidden",
+                minHeight: "80px"
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ fontSize: "18px" }}>🌾</span>
-                <span style={{ fontSize: "16px" }}>कृषी Verse AI</span>
+              <div style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                background: "linear-gradient(45deg, rgba(255,255,255,0.1) 0%, transparent 50%, rgba(255,255,255,0.05) 100%)",
+                pointerEvents: "none"
+              }} />
+              <div style={{ display: "flex", alignItems: "center", gap: 16, position: "relative" }}>
+                <img 
+                  src="/images/Gemini_Generated_Image_cowymkcowymkcowy.png" 
+                  alt="AI Assistant" 
+                  style={{ 
+                    width: "50px", 
+                    height: "50px", 
+                    borderRadius: "50%",
+                    objectFit: "cover",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.15)"
+                  }} 
+                />
+                <div>
+                  <div style={{ fontSize: "22px", fontWeight: "700", textShadow: "0 1px 2px rgba(0,0,0,0.1)" }}>
+                    कृषी Verse AI
+                  </div>
+                  <div style={{ fontSize: "14px", opacity: 0.9, fontWeight: "400" }}>
+                    Your Smart Farming Assistant • Online
+                  </div>
+                </div>
               </div>
               <button
                 onClick={() => setChatOpen(false)}
                 style={{
-                  background: "rgba(255,255,255,0.2)",
+                  background: "rgba(255,255,255,0.15)",
                   border: "none",
                   color: "#fff",
-                  fontSize: 16,
+                  fontSize: 20,
                   cursor: "pointer",
                   borderRadius: "50%",
-                  width: 28,
-                  height: 28,
+                  width: 42,
+                  height: 42,
                   display: "flex",
                   alignItems: "center",
-                  justifyContent: "center"
+                  justifyContent: "center",
+                  transition: "all 0.2s ease",
+                  backdropFilter: "blur(5px)"
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.background = "rgba(255,255,255,0.25)";
+                  e.target.style.transform = "scale(1.1)";
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.background = "rgba(255,255,255,0.15)";
+                  e.target.style.transform = "scale(1)";
                 }}
               >
                 ✕
@@ -628,48 +753,142 @@ export default function SmartKrishiLanding() {
             <div
               style={{
                 flex: 1,
-                padding: "16px",
+                padding: "32px",
                 overflowY: "auto",
-                backgroundColor: "#f8fafc"
+                backgroundColor: "transparent",
+                backgroundImage: "radial-gradient(circle at 20% 50%, rgba(34, 197, 94, 0.03) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.03) 0%, transparent 50%)",
+                minHeight: "400px"
               }}
             >
               {messages.map((message, index) => (
                 <div
                   key={index}
                   style={{
-                    marginBottom: "12px",
+                    marginBottom: "24px",
                     display: "flex",
-                    justifyContent: message.sender === "user" ? "flex-end" : "flex-start"
+                    justifyContent: message.sender === "user" ? "flex-end" : "flex-start",
+                    alignItems: "flex-end",
+                    gap: "12px"
                   }}
                 >
+                  {message.sender === "ai" && (
+                    <img 
+                      src="/images/Gemini_Generated_Image_cowymkcowymkcowy.png" 
+                      alt="AI Assistant" 
+                      style={{ 
+                        width: "40px", 
+                        height: "40px", 
+                        borderRadius: "50%",
+                        objectFit: "cover",
+                        flexShrink: 0,
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.15)"
+                      }} 
+                    />
+                  )}
                   <div
                     style={{
-                      maxWidth: "80%",
-                      padding: "12px 16px",
-                      borderRadius: message.sender === "user" ? "18px 18px 4px 18px" : "18px 18px 18px 4px",
-                      background: message.sender === "user" ? "#22C55E" : "#fff",
-                      color: message.sender === "user" ? "#fff" : "#374151",
-                      fontSize: "14px",
-                      lineHeight: "1.4",
-                      boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-                      whiteSpace: "pre-wrap"
+                      maxWidth: "70%",
+                      padding: "18px 24px",
+                      borderRadius: message.sender === "user" 
+                        ? "20px 20px 6px 20px" 
+                        : "20px 20px 20px 6px",
+                      background: message.sender === "user" 
+                        ? "linear-gradient(135deg, #22C55E 0%, #16A34A 100%)"
+                        : "linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)",
+                      color: message.sender === "user" ? "#fff" : "#1f2937",
+                      fontSize: "16px",
+                      lineHeight: "1.6",
+                      fontWeight: "400",
+                      boxShadow: message.sender === "user"
+                        ? "0 4px 15px rgba(34, 197, 94, 0.25), 0 2px 6px rgba(0,0,0,0.1)"
+                        : "0 4px 15px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04)",
+                      whiteSpace: "pre-wrap",
+                      border: message.sender === "user" ? "none" : "1px solid rgba(229, 231, 235, 0.8)",
+                      backdropFilter: "blur(5px)",
+                      position: "relative",
+                      animation: `messageSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1) ${index * 0.05}s both`,
+                      minHeight: "50px"
                     }}
                   >
                     {message.text}
+                    <div style={{
+                      fontSize: "11px",
+                      opacity: 0.7,
+                      marginTop: "4px",
+                      textAlign: message.sender === "user" ? "right" : "left"
+                    }}>
+                      {new Date(message.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                    </div>
                   </div>
+                  {message.sender === "user" && (
+                    <div style={{
+                      width: 40,
+                      height: 40,
+                      background: "linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)",
+                      borderRadius: "50%",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      fontSize: "16px",
+                      flexShrink: 0,
+                      boxShadow: "0 2px 8px rgba(59, 130, 246, 0.3)"
+                    }}>
+                      👤
+                    </div>
+                  )}
                 </div>
               ))}
               {isLoading && (
-                <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "12px" }}>
+                <div style={{ display: "flex", justifyContent: "flex-start", marginBottom: "24px", alignItems: "flex-end", gap: "12px" }}>
+                  <img 
+                    src="/images/Gemini_Generated_Image_cowymkcowymkcowy.png" 
+                    alt="AI Assistant" 
+                    style={{ 
+                      width: "40px", 
+                      height: "40px", 
+                      borderRadius: "50%",
+                      objectFit: "cover",
+                      flexShrink: 0,
+                      boxShadow: "0 2px 8px rgba(0,0,0,0.15)"
+                    }} 
+                  />
                   <div
                     style={{
-                      padding: "12px 16px",
-                      borderRadius: "18px 18px 18px 4px",
-                      background: "#fff",
-                      boxShadow: "0 2px 8px rgba(0,0,0,0.1)"
+                      padding: "18px 24px",
+                      borderRadius: "20px 20px 20px 6px",
+                      background: "linear-gradient(145deg, #ffffff 0%, #f8fafc 100%)",
+                      boxShadow: "0 4px 15px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04)",
+                      border: "1px solid rgba(229, 231, 235, 0.8)",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "12px",
+                      minHeight: "50px"
                     }}
                   >
-                    <CircularProgress size={20} sx={{ color: "#22C55E" }} />
+                    <div style={{ display: "flex", gap: "4px" }}>
+                      <div style={{
+                        width: "8px",
+                        height: "8px",
+                        background: "#22C55E",
+                        borderRadius: "50%",
+                        animation: "typingDot 1.4s infinite ease-in-out"
+                      }} />
+                      <div style={{
+                        width: "8px",
+                        height: "8px",
+                        background: "#22C55E",
+                        borderRadius: "50%",
+                        animation: "typingDot 1.4s infinite ease-in-out 0.2s"
+                      }} />
+                      <div style={{
+                        width: "8px",
+                        height: "8px",
+                        background: "#22C55E",
+                        borderRadius: "50%",
+                        animation: "typingDot 1.4s infinite ease-in-out 0.4s"
+                      }} />
+                    </div>
+                    <span style={{ color: "#6b7280", fontSize: "13px", fontStyle: "italic" }}>AI is thinking...</span>
                   </div>
                 </div>
               )}
@@ -678,13 +897,15 @@ export default function SmartKrishiLanding() {
             {/* Input Area */}
             <div
               style={{
-                borderTop: "1px solid #e5e7eb",
-                padding: "16px",
-                background: "#fff"
+                borderTop: "1px solid rgba(229, 231, 235, 0.6)",
+                padding: "28px 32px",
+                background: "linear-gradient(145deg, #ffffff 0%, #f9fafb 100%)",
+                backdropFilter: "blur(10px)",
+                minHeight: "120px"
               }}
             >
               {/* Voice Controls */}
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 18 }}>
                 <Tooltip title={`Voice input (${languages.find(l => l.code === selectedLanguage)?.name})`}>
                   <IconButton
                     onClick={isListening ? stopSpeechRecognition : startSpeechRecognition}
@@ -761,47 +982,83 @@ export default function SmartKrishiLanding() {
 
 
               {/* Text Input */}
-              <div style={{ display: "flex", gap: 8, alignItems: "flex-end" }}>
-                <input
-                  type="text"
-                  value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  placeholder="शेतीचे प्रश्न विचारा... Ask farming questions..."
-                  disabled={isLoading}
-                  style={{
-                    flex: 1,
-                    border: "2px solid #e5e7eb",
-                    borderRadius: 12,
-                    padding: "12px 16px",
-                    outline: "none",
-                    fontSize: 14,
-                    color: "#374151",
-                    backgroundColor: isLoading ? "#f9fafb" : "#fff",
-                    fontFamily: "inherit",
-                    transition: "border-color 0.2s ease",
-                    lineHeight: "1.4"
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = "#22C55E";
-                    e.target.style.color = "#111827";
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = "#e5e7eb";
-                    e.target.style.color = "#374151";
-                  }}
-                />
+              <div style={{ display: "flex", gap: 16, alignItems: "flex-end" }}>
+                <div style={{ flex: 1, position: "relative" }}>
+                  <input
+                    type="text"
+                    value={inputValue}
+                    onChange={(e) => setInputValue(e.target.value)}
+                    onKeyPress={handleKeyPress}
+                    placeholder="शेतीचे प्रश्न विचारा... Ask farming questions..."
+                    disabled={isLoading}
+                    style={{
+                      width: "100%",
+                      border: "2px solid #e5e7eb",
+                      borderRadius: 18,
+                      padding: "16px 22px",
+                      outline: "none",
+                      fontSize: 16,
+                      color: "#1f2937",
+                      backgroundColor: isLoading ? "#f9fafb" : "#fff",
+                      fontFamily: "inherit",
+                      transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                      lineHeight: "1.5",
+                      boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+                      resize: "none",
+                      minHeight: "56px"
+                    }}
+                    onFocus={(e) => {
+                      e.target.style.borderColor = "#22C55E";
+                      e.target.style.boxShadow = "0 0 0 3px rgba(34, 197, 94, 0.1), 0 4px 12px rgba(0,0,0,0.08)";
+                      e.target.style.transform = "translateY(-1px)";
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.borderColor = "#e5e7eb";
+                      e.target.style.boxShadow = "0 2px 8px rgba(0,0,0,0.04)";
+                      e.target.style.transform = "translateY(0px)";
+                    }}
+                  />
+                  {inputValue && (
+                    <div style={{
+                      position: "absolute",
+                      right: "60px",
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      color: "#9ca3af",
+                      fontSize: "12px",
+                      pointerEvents: "none"
+                    }}>
+                      {inputValue.length}/500
+                    </div>
+                  )}
+                </div>
                 <IconButton
                   onClick={handleSend}
                   disabled={!inputValue.trim() || isLoading}
                   sx={{
-                    backgroundColor: "#22C55E",
+                    background: "linear-gradient(135deg, #22C55E 0%, #16A34A 100%)",
                     color: "#fff",
-                    "&:hover": { backgroundColor: "#16A34A" },
-                    "&:disabled": { backgroundColor: "#e5e7eb", color: "#9ca3af" }
+                    width: 56,
+                    height: 56,
+                    boxShadow: "0 4px 15px rgba(34, 197, 94, 0.3)",
+                    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                    "&:hover": { 
+                      background: "linear-gradient(135deg, #16A34A 0%, #15803d 100%)",
+                      transform: "scale(1.05) translateY(-1px)",
+                      boxShadow: "0 6px 20px rgba(34, 197, 94, 0.4)"
+                    },
+                    "&:active": {
+                      transform: "scale(0.95)"
+                    },
+                    "&:disabled": { 
+                      background: "#e5e7eb", 
+                      color: "#9ca3af",
+                      boxShadow: "none",
+                      transform: "none"
+                    }
                   }}
                 >
-                  <Send />
+                  <Send sx={{ fontSize: 24 }} />
                 </IconButton>
               </div>
               
