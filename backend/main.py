@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from api.chat import ChatRequest, ChatResponse
+from agent.graph_builder import graph
 
 app = FastAPI()
 
@@ -15,9 +16,19 @@ def health_check():
 def chat(request: ChatRequest) -> ChatResponse:
     print(request.model_dump())
     
+    state = {
+        "question": request.question,
+        "thread_id": request.thread_id,
+        "user_id": request.user_id,
+        "messages": [],
+        "answer": ""
+    }
+    result = graph.invoke(state)
+
     response = ChatResponse(
         status="success",
-        answer=request.question,
-        thread_id=request.thread_id
+        answer= result["answer"],
+        thread_id= result["thread_id"]
     )
+    print(response.answer)
     return response
