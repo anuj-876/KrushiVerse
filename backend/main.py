@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from api.chat import ChatRequest, ChatResponse
+from langchain_core.messages import HumanMessage
 from agent.graph_builder import graph
 
 app = FastAPI()
@@ -17,18 +18,26 @@ def chat(request: ChatRequest) -> ChatResponse:
     print(request.model_dump())
     
     state = {
-        "question": request.question,
-        "thread_id": request.thread_id,
-        "user_id": request.user_id,
-        "messages": [],
-        "answer": ""
+        "messages": [
+            HumanMessage(content=request.question)
+        ],
     }
-    result = graph.invoke(state)
+    config = {
+        "configurable":{
+            "thread_id": request.thread_id
+        }
+    }
+
+    result = graph.invoke(
+        state,
+        config=config
+        )
 
     response = ChatResponse(
         status="success",
-        answer= result["answer"],
-        thread_id= result["thread_id"]
+        answer=result["messages"][-1].content,
+        thread_id=request.thread_id
     )
+
     print(response.answer)
     return response

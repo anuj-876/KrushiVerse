@@ -1,8 +1,6 @@
-from typing import TypedDict
+from typing import (TypedDict,Annotated)
+from langgraph.graph.message import add_messages
+from langchain_core.messages import AnyMessage
 
 class AgentState(TypedDict):
-    question: str
-    thread_id: str
-    user_id: str
-    messages: list
-    answer: str
+    messages: Annotated[list[AnyMessage], add_messages]   

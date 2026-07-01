@@ -1,4 +1,7 @@
+from model.groq_client import llm
 def chatbot_node(state):
-    state["answer"] = "Hello from KrushiVerse Agent"
-    return state
+    response = llm.invoke(
+        state["messages"]
+    )
+    return {"messages": [response]}
     
