@@ -5,3 +5,9 @@ langchain
 langchain-groq
 python-dotenv
 langgraph-checkpoint
+langchain-huggingface
+langchain-text-splitters
+langchain-chroma
+langhchain-community
+langchain-pdf
+sentence-transformer

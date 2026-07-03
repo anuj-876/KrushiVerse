@@ -6,3 +6,5 @@ load_dotenv()
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 if not GROQ_API_KEY:
     raise ValueError("Groq api key is missing")
+
+HF_TOKEN = os.getenv("HF_TOKEN")
