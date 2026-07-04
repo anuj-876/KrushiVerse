@@ -13,7 +13,7 @@ builder.add_node("rag", rag_node)
 builder.add_node("router", router_node)
 
 
-builder.add_edges(START, "router")
+builder.add_edge(START, "router")
 
 ROUTE_MAPPING = {
     Route.CHATBOT: "chatbot",
