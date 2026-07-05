@@ -1,7 +1,7 @@
 from backend.agent.routes import Route
 
 
-def build_router_prompt(question: str, routes: type[Route]) -> str:
+def build_router_prompt(conversation: str, routes: type[Route]) -> str:
     available_routes = "\n".join(
         route.value for route in routes
     )
@@ -22,6 +22,6 @@ Rules:
 Return ONLY one route name.
 Do not explain your answer.
 Question:
-{question}
+{conversation}
 Route:
 """

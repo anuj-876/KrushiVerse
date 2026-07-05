@@ -3,27 +3,30 @@ from langchain_core.messages import HumanMessage
 from agent.routes import Route
 from model.groq_client import llm
 from prompts.router_prompt import build_router_prompt
-from utils.message_utils import get_latest_message
+from utils.message_utils import get_recent_messages
+from utils.message_formatter import format_messages
 
 
 def router_node(state):
-
-    # Step 1: Extract latest user question
-    question = get_latest_message(
+    # Step 1: Get recent conversation
+    recent_messages = get_recent_messages(
         state["messages"],
-        HumanMessage
-    ).content
+        limit=4
+    )
 
-    # Step 2: Build router prompt
+    # Step 2: Convert conversation to text
+    conversation = format_messages(recent_messages)
+
+    # Step 3: Build router prompt
     prompt = build_router_prompt(
-        question=question,
+        conversation=conversation,
         routes=Route
     )
 
-    # Step 3: Ask the LLM
+    # Step 4: Ask the LLM
     response = llm.invoke(prompt)
 
-    # Step 4: Normalize output
+    # Step 5: Normalize output
     route = (
         response.content
         .strip()
@@ -31,15 +34,20 @@ def router_node(state):
         .rstrip(".")
     )
 
-    # Step 5: Validate
+    # Step 6: Validate route
     try:
         validated_route = Route(route)
     except ValueError:
-        raise ValueError(
-            f"Invalid route returned by LLM: {route}"
+        valid_routes = ", ".join(
+            route.value for route in Route
         )
 
-    # Step 6: Return state update
+        raise ValueError(
+            f"Invalid route '{route}'. "
+            f"Expected one of: {valid_routes}"
+        )
+
+    # Step 7: Return state update
     return {
         "route": validated_route
     }

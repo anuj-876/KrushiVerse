@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from api.chat import ChatRequest, ChatResponse
-from langchain_core.messages import HumanMessage
+from langchain_core.messages import (HumanMessage,AIMessage)
 from agent.graph_builder import graph
+from utils.message_utils import get_latest_message
 
 app = FastAPI()
 
@@ -14,13 +15,14 @@ def health_check():
     }
 
 @app.post('/chat')
-def chat(request: ChatRequest) -> ChatResponse:
+async def chat(request: ChatRequest) -> ChatResponse:
     print(request.model_dump())
     
     state = {
         "messages": [
             HumanMessage(content=request.question)
         ],
+        "route": None
     }
     config = {
         "configurable":{
@@ -28,16 +30,19 @@ def chat(request: ChatRequest) -> ChatResponse:
         }
     }
 
-    result = graph.invoke(
+    final_state = graph.invoke(
         state,
         config=config
         )
 
-    response = ChatResponse(
-        status="success",
-        answer=result["messages"][-1].content,
-        thread_id=request.thread_id
+    response = get_latest_message(
+        final_state["messages"],
+        AIMessage
     )
-
-    print(response.answer)
-    return response
+    print(response.content)
+    
+    return ChatResponse(
+    status="success",
+    answer=response.content,
+    thread_id=request.thread_id
+    )

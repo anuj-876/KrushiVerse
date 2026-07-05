@@ -15,17 +15,22 @@ builder.add_node("router", router_node)
 
 builder.add_edge(START, "router")
 
-ROUTE_MAPPING = {
+ROUTE_TO_NODE_MAPPING = {
     Route.CHATBOT: "chatbot",
     Route.RAG: "rag"
 }
+
+def route_selector(state: AgentState):
+    return state["route"]
+
 builder.add_conditional_edges(
     "router",
-    lambda state: state["route"],
-    ROUTE_MAPPING)
+    route_selector,
+    ROUTE_TO_NODE_MAPPING)
+builder.add_edge("chatbot", END)
 builder.add_edge("rag", END)
 
-memory = MemorySaver()
+checkpointer = MemorySaver()
 graph = builder.compile(
-    checkpointer=memory
+    checkpointer=checkpointer
 )
