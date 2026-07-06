@@ -1,11 +1,9 @@
-from langchain_core.messages import HumanMessage
-
+# from langchain_core.messages import HumanMessage
 from agent.routes import Route
 from model.groq_client import llm
 from prompts.router_prompt import build_router_prompt
 from utils.message_utils import get_recent_messages
 from utils.message_formatter import format_messages
-
 
 def router_node(state):
     # Step 1: Get recent conversation
@@ -49,5 +47,5 @@ def router_node(state):
 
     # Step 7: Return state update
     return {
-        "route": validated_route
+        "route": validated_route.value
     }

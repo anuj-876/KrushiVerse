@@ -16,11 +16,11 @@ builder.add_node("router", router_node)
 builder.add_edge(START, "router")
 
 ROUTE_TO_NODE_MAPPING = {
-    Route.CHATBOT: "chatbot",
-    Route.RAG: "rag"
+    "chatbot": "chatbot",
+    "rag": "rag"
 }
 
-def route_selector(state: AgentState):
+def route_selector(state):
     return state["route"]
 
 builder.add_conditional_edges(

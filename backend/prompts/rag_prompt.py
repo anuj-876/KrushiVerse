@@ -1,4 +1,4 @@
-def build_rag_prompt(conversation: str, context: str) -> str:
+def build_rag_prompt(question: str, context: str) -> str:
     return f"""
 You are KrushiVerse, an AI-powered Agriculture Assistant.
 
@@ -10,7 +10,7 @@ If the answer is not present in the provided context, respond with:
 {context}
 
 Question:
-{conversation}
+{question}
 
 Answer:
 """

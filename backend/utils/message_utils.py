@@ -22,7 +22,7 @@ def get_latest_message(
 
 def get_recent_messages(
     messages: list[BaseMessage],
-    limit: int = 4,
+    limit: int,
 ) -> list[BaseMessage]:
     """
     Returns the last `limit` messages from the conversation.

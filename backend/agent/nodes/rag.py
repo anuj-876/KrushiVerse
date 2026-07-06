@@ -6,7 +6,7 @@ from rag.formatter import format_documents
 from prompts.rag_prompt import build_rag_prompt
 from utils.message_utils import get_recent_messages
 from utils.message_formatter import format_messages
-
+from agent.services.query_rewriter import rewrite_query
 
 def rag_node(state):
     # Step 1: Get retriever
@@ -19,16 +19,21 @@ def rag_node(state):
     )
 
     # Step 3: Convert conversation into text
-    conversation = format_messages(
+    conversation_text = format_messages(
         recent_messages
     )
 
-    # Step 4: Retrieve relevant documents
-    documents = retriever.invoke(
-        conversation
+    # step 4: Rewriting Standalone Query
+    rewritten_query = rewrite_query(
+        conversation_text
     )
 
-    # Step 5: Handle no retrieval results
+    # Step 5: Retrieve relevant documents
+    documents = retriever.invoke(
+        rewritten_query
+    )
+
+    # Step 6: Handle no retrieval results
     if not documents:
         return {
             "messages": [
@@ -41,21 +46,32 @@ def rag_node(state):
             ]
         }
 
-    # Step 6: Format retrieved documents
+    # Step 7: Format retrieved documents
     context = format_documents(
         documents
     )
 
-    # Step 7: Build RAG prompt
+    # Step 8: Build RAG prompt
     prompt = build_rag_prompt(
-        conversation=conversation,
+        question=rewritten_query,
         context=context
     )
 
-    # Step 8: Generate response
+    # Step 9: Generate response
     response = llm.invoke(prompt)
 
-    # Step 9: Return updated state
+    #testing
+    # print("=" * 60)
+    # print("Retrieved Documents")
+
+    # for i, document in enumerate(documents):
+    #     print(f"\nDocument {i+1}")
+    #     print(document.page_content[:300])
+
+    # print("=" * 60)
+
+    # Step 10: Return updated state
     return {
         "messages": [response]
     }
+

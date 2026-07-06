@@ -21,4 +21,4 @@ def format_messages(
         formatted_messages.append(
             f"{role}: \n{message.content}"
         )
-        return "\n\n".join(formatted_messages)
+    return "\n\n".join(formatted_messages)
