@@ -26,7 +26,8 @@ async def chat(request: ChatRequest) -> ChatResponse:
     }
     config = {
         "configurable":{
-            "thread_id": request.thread_id
+            "thread_id": request.thread_id,
+            "user_id": request.user_id
         }
     }
 

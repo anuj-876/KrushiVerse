@@ -9,4 +9,4 @@ class ChatRequest(BaseModel):
 class ChatResponse(BaseModel):
     status: str
     answer: str
-    thread_id : str
+    thread_id: str

@@ -1,4 +1,5 @@
 import ast, operator
+
 allowed_nodes = (
     ast.Expression,
     ast.BinOp,

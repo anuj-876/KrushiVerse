@@ -2,7 +2,7 @@ from functools import lru_cache
 
 from langchain_huggingface import HuggingFaceEmbeddings
 
-from backend.config.settings import HF_TOKEN
+from config.settings import HF_TOKEN
 
 
 @lru_cache(maxsize=1)
